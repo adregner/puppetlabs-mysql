@@ -36,13 +36,13 @@ Puppet::Type.type(:database_grant).provide(:mysql) do
   def self.query_user_privs
     results = mysql("--defaults-file=#{Facter.value(:root_home)}/.my.cnf", "mysql", "-Be", "describe user")
     column_names = results.split(/\n/).map { |l| l.chomp.split(/\t/)[0] }
-    @user_privs = column_names.delete_if { |e| !( e =~/_priv$/) }
+    @user_privs = column_names.delete_if { |e| !( e =~/_priv$/) || e.downcase ~=/grant/ }
   end
 
   def self.query_db_privs
     results = mysql("--defaults-file=#{Facter.value(:root_home)}/.my.cnf", "mysql", "-Be", "describe db")
     column_names = results.split(/\n/).map { |l| l.chomp.split(/\t/)[0] }
-    @db_privs = column_names.delete_if { |e| !(e =~/_priv$/) }
+    @db_privs = column_names.delete_if { |e| !(e =~/_priv$/) || e.downcase ~=/grant/ }
   end
 
   def mysql_flush
